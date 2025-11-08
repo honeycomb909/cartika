@@ -10,6 +10,9 @@ const nextConfig = {
     // `/uploads/...` resolve correctly when prefixed. Override with .env.local if needed.
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   },
+  experimental: {
+    missingSuspenseWithCSRError: false,
+  },
 }
 
 module.exports = nextConfig

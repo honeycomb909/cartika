@@ -2,7 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'picsum.photos'],
+    domains: ['localhost', 'picsum.photos', process.env.VERCEL_URL],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      }
+    ],
     unoptimized: true,
   },
   env: {

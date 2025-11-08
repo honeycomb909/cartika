@@ -58,9 +58,10 @@ export default function CartPage() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => {
+              const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
               const imageUrl = item.image.startsWith('http')
                 ? item.image
-                : `http://localhost:5001${item.image}`;
+                : `${API_URL}${item.image}`;
 
               return (
                 <motion.div

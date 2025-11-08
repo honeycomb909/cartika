@@ -76,8 +76,9 @@ export default function ProductDetailPage() {
   }
 
   const maxQuantity = Math.min(product.stock_quantity, 10);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
   const imageUrl = product.images && product.images[selectedImage]
-    ? `http://localhost:5001${product.images[selectedImage]}`
+    ? `${API_URL}${product.images[selectedImage]}`
     : '/placeholder.jpg';
 
   return (
@@ -108,7 +109,7 @@ export default function ProductDetailPage() {
                     }`}
                   >
                     <Image
-                      src={`http://localhost:5001${img}`}
+                      src={`${API_URL}${img}`}
                       alt={`${product.name} ${idx + 1}`}
                       fill
                       className="object-cover"

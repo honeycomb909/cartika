@@ -2,6 +2,8 @@ import { ProductGrid } from '@/components/ProductGrid';
 import { Hero } from '@/components/Hero';
 import { categoriesApi, productsApi } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 async function getProducts() {
   try {
     const response = await productsApi.getAll({ page: 1, limit: 12 });

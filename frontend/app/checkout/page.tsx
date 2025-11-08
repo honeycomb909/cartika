@@ -1,8 +1,5 @@
 'use client';
 
-// This ensures the page is rendered dynamically
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cartStore';
 import { ordersApi, paymentsApi } from '@/lib/api';
@@ -10,7 +7,6 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
-import confetti from 'canvas-confetti';
 
 declare global {
   interface Window {
@@ -25,10 +21,17 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     init();
   }, [init]);
+
+  // Don't render anything until mounted
+  if (!mounted) {
+    return null;
+  }
 
   const [formData, setFormData] = useState({
     customer_name: '',
@@ -40,12 +43,17 @@ export default function CheckoutPage() {
     pincode: '',
   });
 
-  if (items.length === 0 && !orderCreated) {
-    router.push('/cart');
-    return null;
-  }
+      // Use useEffect for client-side navigation
+      useEffect(() => {
+        if (items.length === 0 && !orderCreated) {
+          router.push('/cart');
+        }
+      }, [items.length, orderCreated, router]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Early return while checking cart
+      if (items.length === 0 && !orderCreated) {
+        return null;
+      }  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -100,11 +108,14 @@ export default function CheckoutPage() {
 
             if (verifyResponse.data) {
               clearCart();
-              confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-              });
+              try {
+                const confettiModule = await import('canvas-confetti');
+                const confettiFn = confettiModule.default || confettiModule;
+                confettiFn({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+              } catch (err) {
+                // If confetti fails to load in some environments, don't block the flow
+                console.warn('Confetti load failed', err);
+              }
               toast.success('Payment successful!');
               router.push(`/order-success/${order.order_number}`);
             }
@@ -128,8 +139,11 @@ export default function CheckoutPage() {
         },
       };
 
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      // Only create Razorpay instance in browser environment
+      if (typeof window !== 'undefined') {
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+      }
     } catch (error: any) {
       console.error('Checkout error:', error);
       toast.error(error.response?.data?.error || 'Failed to create order');

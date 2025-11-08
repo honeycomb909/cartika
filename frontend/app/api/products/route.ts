@@ -3,6 +3,10 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET(request: Request) {
   try {
+    if (!supabase) {
+      console.error('Supabase not configured');
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
+    }
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -40,14 +44,17 @@ export async function GET(request: Request) {
     const to = from + limit - 1;
     query = query.range(from, to);
 
-    const { data: products, error, count } = await query;
+    const result: any = await query;
+    const products = result.data as any[] || [];
+    const error = result.error;
+    const count = result.count;
 
     if (error) {
       throw error;
     }
 
     return NextResponse.json({
-      products: products.map(product => ({
+      products: products.map((product: any) => ({
         id: product.id,
         name: product.name,
         slug: product.slug,

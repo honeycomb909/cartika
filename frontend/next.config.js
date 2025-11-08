@@ -2,7 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'picsum.photos', process.env.VERCEL_URL],
+    // allow localhost and placeholder photos by default; add Vercel hostname if present
+    domains: (() => {
+      const d = ['localhost', 'picsum.photos'];
+      if (process.env.VERCEL_URL) d.push(process.env.VERCEL_URL);
+      return d;
+    })(),
     remotePatterns: [
       {
         protocol: 'https',

@@ -1,7 +1,7 @@
 'use client';
 
+// This ensures the page is rendered dynamically
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cartStore';
